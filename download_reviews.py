@@ -31,7 +31,7 @@ def save_files(reviews):
         filename = _slugify(film.get('fields').get('Title'))
         filename += '.md'
         frontmatter = dict_to_frontmatter(film.get('fields'))
-        review = film.get('fields').get('Review')
+        review = film.get('fields').get('Review', "WRITE REVIEW HERE")
         if filename and frontmatter and review:
             write_file(filename, frontmatter, review)
 
@@ -52,12 +52,13 @@ def dict_to_frontmatter(data):
         try:
             mapped[table_to_matter[key]] = value
         except KeyError as err:
-            print(f'** Not matching {err}')
+            print(f"  =* [{data['Title']}] Not matching {err}")
     try:
         result = '---\n'
         for key, value in mapped.items():
             result += f'{key}: {value}\n'
-        result += 'tags: [cinema]\n---\n'
+        result += 'still: ../stills/'
+        result += '---\n'
         return result
     except KeyError as err:
         print('key not found. Aborting')
@@ -74,10 +75,7 @@ def write_file(filename, fmt, review):
 
 
 def update_table(atb, data):
-    payload = {
-        'records': list()
-    }
-    records = payload['records']
+    to_update = list()
     for item in data:
         entry = {
             'id': item['id'],
@@ -86,8 +84,13 @@ def update_table(atb, data):
                 'Extractiondate': str(datetime.date.today())
             }
         }
-        records.append(entry)
-    atb.patch_table('Films', payload)
+        to_update.append(entry)
+    # Airtable has a limit of <max_records> per update
+    max_records = 10
+    request_chunks = [to_update[i:i+max_records] for i in range(0, len(to_update), max_records)]
+    for chunk in request_chunks:
+        payload = {'records': chunk}
+        atb.patch_table('Films', payload)
 
 
 def _slugify(value, allow_unicode=False):

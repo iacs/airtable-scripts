@@ -33,6 +33,7 @@ class Airtable():
 
         try:
             result = requests.patch(url, headers=headers, json=payload)
-            print(result.text)
+            # print(result.text)
+            print("Request succesful")
         except OSError as err:
             print("ERROR!", err)
