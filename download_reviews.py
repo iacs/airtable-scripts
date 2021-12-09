@@ -56,8 +56,14 @@ def dict_to_frontmatter(data):
     try:
         result = '---\n'
         for key, value in mapped.items():
-            result += f'{key}: {value}\n'
-        result += 'still: ../stills/'
+            if key == 'title' or key == 'orig_title':
+                result += f'{key}: "{value}"\n'
+            elif key == 'director':
+                directors = ", ".join(value)
+                result += f'{key}: "{directors}"\n'
+            else:
+                result += f'{key}: {value}\n'
+        result += 'still: ../stills/\n'
         result += '---\n'
         return result
     except KeyError as err:
