@@ -63,7 +63,7 @@ def dict_to_frontmatter(data):
                 result += f'{key}: "{directors}"\n'
             else:
                 result += f'{key}: {value}\n'
-        result += 'still: ../stills/\n'
+        result += 'still:\n'
         result += '---\n'
         return result
     except KeyError as err:
